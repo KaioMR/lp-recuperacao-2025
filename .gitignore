@@ -1,0 +1,19 @@
+# Stack / Haskell
+.stack-work/
+dist/
+dist-newstyle/
+.stack-work/
+
+# Binaries
+*.exe
+*.out
+*.o
+*.hi
+
+# Editor / sistema
+.vscode/
+.idea/
+.DS_Store
+
+# Frontend (se algum dia usar build)
+node_modules/
