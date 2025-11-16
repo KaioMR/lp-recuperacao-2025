@@ -1,31 +1,25 @@
-# Imagem base com GHC + Cabal
+# Imagem base com GHC + Stack já instalados
 FROM haskell:9.10.3
-
-# Instala curl (necessário para instalar o Stack)
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
-
-# Instala o Stack
-RUN curl -sSL https://get.haskellstack.org/ | sh
 
 # Diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copia apenas os arquivos de config primeiro (melhor cache)
-COPY backend/backend-api/stack.yaml backend/backend-api/backend-api.cabal ./
+# Copia arquivos de configuração do Stack e do Cabal
+# (do repo -> para dentro de /app)
+COPY backend/backend-api/stack.yaml ./stack.yaml
+COPY backend/backend-api/backend-api.cabal ./backend-api.cabal
 
-# Prepara o ambiente do Stack
+# Prepara o ambiente (baixa GHC, etc.)
 RUN stack setup
 
-# Agora copia o restante do código
+# Agora copia o restante do código fonte
 COPY backend/backend-api/ ./
 
-# Compila e instala o executável (vai para /root/.local/bin/backend-api)
+# Compila e instala o executável
 RUN stack install
 
-# A porta será informada pelo Render via variável PORT
-# Opcional: expõe uma porta "default" (não precisa ser a real do Render)
+# Porta interna do container (Render vai injetar PORT)
 EXPOSE 10000
 
-# Comando de inicialização: roda o binário instalado pelo Stack
-# Ele já lê a variável de ambiente PORT no seu Main.hs
-CMD ["/root/.local/bin/backend-api"]
+# Comando de inicialização:
+# o binário instalado pelo stack costuma
