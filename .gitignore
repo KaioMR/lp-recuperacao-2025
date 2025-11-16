@@ -3,6 +3,7 @@
 dist/
 dist-newstyle/
 .stack-work/
+stack.yaml.lock
 
 # Binaries
 *.exe
