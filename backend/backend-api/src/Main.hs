@@ -8,7 +8,11 @@ import Network.HTTP.Types (status400, status200)
 import Data.Aeson (FromJSON, ToJSON)
 import GHC.Generics (Generic)
 import Data.Text.Lazy (Text)
-import System.Environment (lookupEnv)
+import System.Environment (lookupEnv, setEnv)
+import qualified Control.Exception as E
+import Control.Exception (IOException)
+import Data.Char (isSpace)
+import Data.List (dropWhileEnd)
 
 -- Corpo do request vindo do frontend
 data CompoundRequest = CompoundRequest
@@ -61,8 +65,42 @@ setCors = do
   addHeader "Access-Control-Allow-Methods" "POST, OPTIONS"
   addHeader "Access-Control-Allow-Headers" "Content-Type"
 
+-- ===== Helpers para ler .env =====
+
+trim :: String -> String
+trim = dropWhileEnd isSpace . dropWhile isSpace
+
+setEnvFromLine :: String -> IO ()
+setEnvFromLine line = do
+  let l = dropWhile isSpace line
+  if null l || head l == '#'
+    then return ()
+    else
+      case break (== '=') l of
+        (key, '=' : value) ->
+          let k = trim key
+              v = trim value
+          in if null k
+               then return ()
+               else setEnv k v
+        _ -> return ()
+
+loadEnvFromFile :: IO ()
+loadEnvFromFile = do
+  contents <- E.catch (readFile ".env") handler
+  mapM_ setEnvFromLine (lines contents)
+  where
+    handler :: IOException -> IO String
+    handler _ = return ""  -- se não tiver .env, ignora
+
+-- ===== Main =====
+
 main :: IO ()
 main = do
+  -- carrega variáveis do .env (se existir)
+  loadEnvFromFile
+
+  -- lê PORT do ambiente (com fallback pra 8080)
   mPort <- lookupEnv "PORT"
   let port = maybe 8080 read mPort
 
