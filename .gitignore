@@ -15,6 +15,7 @@ stack.yaml.lock
 .vscode/
 .idea/
 .DS_Store
+.env
 
 # Frontend (se algum dia usar build)
 node_modules/
