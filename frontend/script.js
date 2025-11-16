@@ -1,5 +1,5 @@
 // URL da API em Haskell (ajuste quando for fazer deploy)
-const API_URL = "http://localhost:8080/api/compound";
+const API_URL = "https://lp-recuperacao-2025.onrender.com/api/compound";
 
 const form = document.getElementById("compound-form");
 const resultDiv = document.getElementById("result");
